@@ -33,15 +33,15 @@ function details() {
      }, 
 	 {
        name: 'quality',
-       tooltip: `Specify quality of the encoding. 0 - 100, the lower the quality, the more space savings you'll see.
+       tooltip: `Specify quality of the encoding. 0 - 100, the lower the quality, the more space savings you'll see (at 100% quality you'll still get around half the original file size).
 	   \\nExample:\\n
-	   0* Minimum
+	   0* Minimum.
 	   
 	   \\nExample:\\n
-	   50* Default
+	   100* Default (there is no point in going any higher than 100%).
 	   
 	   \\nExample:\\n
-	   100* No reduction in bitrate, much higher file sizes.`
+	   200* No reduction in bitrate, much higher file sizes with no quality gains (it's pointless to do this).`
      }, 
 	 ]
   }
@@ -93,13 +93,13 @@ function plugin(file, librarySettings, inputs) {
 	  var duration = (file.ffProbeData.streams[0].duration * 0.0166667)
   }
 
-  var qualitySetting = ~~(100 / inputs.quality)
+  var qualitySetting = ~~(200 / inputs.quality)
   var bitrateSettings = ""
   var filesize = (file.file_size / 1000)
   var targetBitrate = ~~((file.file_size / (duration * 0.0075)) / qualitySetting)
   var minimumBitrate = ~~(targetBitrate * 0.7)
   var maximumBitrate = ~~(targetBitrate * 1.3)
-  
+    
   if (targetBitrate == "0") {
 	  response.processFile = false
       response.infoLog += "☒ Target bitrate could not be calculated. Skipping this plugin. \n"
