@@ -158,7 +158,7 @@ function plugin(file, librarySettings, inputs) {
 	  queueArguments = `-max_muxing_queue_size ${inputs.queue}`
   }
   
-  response.preset += `,-map 0 -c:v hevc_nvenc -rc:v vbr_hq ${bitrateSettings} -bufsize 2M -spatial_aq:v 1 -c:a copy -c:s copy ${queueArguments} ${extraArguments}`
+  response.preset += `,-map 0:v -c:v hevc_nvenc -rc:v vbr_hq ${bitrateSettings} -bufsize 2M -spatial_aq:v 1 -c:a copy -c:s copy ${queueArguments} ${extraArguments}`
   response.processFile = true
   response.infoLog += `☒ File is not hevc. Transcoding. \n`
   return response
