@@ -6,7 +6,7 @@ function details() {
     Type: "Video",
     Operation:"Transcode",
     Description: `[Experimental] Made to transcode all files into HVEC using NVIDIA GPUs. Just set the container and the max queue length and you're ready to go. \n\n`,
-    Version: "2.10",
+    Version: "2.20",
     Link: "",
     Tags:'pre-processing,ffmpeg,video only,nvenc h265,configurable',
 	Inputs: [
@@ -30,6 +30,15 @@ function details() {
 	   
 	   \\nExample:\\n
 	   9999* Prevents errors`
+     }, 
+	 {
+       name: 'subtitles',
+       tooltip: `Keep or remove subtitles.
+	   \\nExample:\\n
+	   True
+	   
+	   \\nExample:\\n
+	   False`
      }, 
 	 {
        name: 'quality',
@@ -158,7 +167,11 @@ function plugin(file, librarySettings, inputs) {
 	  queueArguments = `-max_muxing_queue_size ${inputs.queue}`
   }
   
-  response.preset += `,-map 0:v -c:v hevc_nvenc -rc:v vbr_hq ${bitrateSettings} -bufsize 2M -spatial_aq:v 1 -c:a copy -c:s copy ${queueArguments} ${extraArguments}`
+  if (inputs.subtitles == "True") {
+	  subtitleArguments = `-c:s copy`
+  }
+   
+  response.preset += `,-map 0 -c:v hevc_nvenc -rc:v vbr_hq ${bitrateSettings} -bufsize 2M -spatial_aq:v 1 -c:a copy ${subtitleArguments} ${queueArguments} ${extraArguments}`
   response.processFile = true
   response.infoLog += `☒ File is not hevc. Transcoding. \n`
   return response
