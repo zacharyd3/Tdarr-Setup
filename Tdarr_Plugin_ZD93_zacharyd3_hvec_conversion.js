@@ -2,7 +2,7 @@ function details() {
   return {
     id: "Tdarr_Plugin_ZD93_zacharyd3_hvec_conversion",
 	Stage: "Pre-processing",
-    Name: "Transcode to HVEC",
+    Name: "zacharyd3 & Migz -Transcode to HVEC",
     Type: "Video",
     Operation:"Transcode",
     Description: `[Experimental] Made to transcode all files into HVEC using NVIDIA GPUs. Just set the container and the max queue length and you're ready to go. \n\n`,
@@ -67,7 +67,9 @@ function plugin(file, librarySettings, inputs) {
   }
 
   if (inputs.container == "") {
+	  response.infoLog += "\n"
       response.infoLog += "☒ Container has not been configured within plugin settings, please configure required options. Skipping this plugin. \n"
+	  response.infoLog += "\n"
       response.processFile = false
       return response
     } else {
@@ -75,7 +77,9 @@ function plugin(file, librarySettings, inputs) {
 	}
 
   if (inputs.queue == "") {
+	  response.infoLog += "\n"
       response.infoLog += "☒ Queue length has not been configured within plugin settings, please configure required options. Skipping this plugin. \n"
+	  response.infoLog += "\n"
       response.processFile = false
       return response
     } else {
@@ -83,7 +87,9 @@ function plugin(file, librarySettings, inputs) {
 	}
 
   if (inputs.quality == "") {
+	  response.infoLog += "\n"
       response.infoLog += "☒ Quality has not been configured within plugin settings, please configure required options. Skipping this plugin. \n"
+	  response.infoLog += "\n"
       response.processFile = false
       return response
     } else {
@@ -92,7 +98,9 @@ function plugin(file, librarySettings, inputs) {
    
   if (file.fileMedium !== "video") {
       response.processFile = false
+	  response.infoLog += "\n"
       response.infoLog += "☒ File is not a video. \n"
+	  response.infoLog += "\n"
       return response
     }
 
@@ -111,25 +119,33 @@ function plugin(file, librarySettings, inputs) {
     
   if (targetBitrate == "0") {
 	  response.processFile = false
+	  response.infoLog += "\n"
       response.infoLog += "☒ Target bitrate could not be calculated. Skipping this plugin. \n"
+	  response.infoLog += "\n"
       return response
   }
 
   if (file.ffProbeData.streams[0].codec_name == 'hevc' && file.container == inputs.container) {
       response.processFile = false
+	  response.infoLog += "\n"
       response.infoLog += `☑ File is already in ${inputs.container} & hevc. \n`
+	  response.infoLog += "\n"
       return response
     }
   
   if (file.ffProbeData.streams[0].codec_name == 'hevc' && file.container != '${inputs.container}') {
+	  response.infoLog += "\n"
       response.infoLog += `☒ File is hevc but is not in ${inputs.container} container. Remuxing. \n`
+	  response.infoLog += "\n"
       response.preset = ', -map 0 -c copy'
       response.processFile = true;
       return response
     }
 	
   bitrateSettings = `-b:v ${targetBitrate}k -minrate ${minimumBitrate}k -maxrate ${maximumBitrate}k`
+  response.infoLog += "\n"
   response.infoLog += `Container for output selected as ${inputs.container}. \n Current bitrate = ${~~(file.file_size / (duration * 0.0075))} \n Bitrate settings: \nTarget = ${targetBitrate} \nMinimum = ${minimumBitrate} \nMaximum = ${maximumBitrate} \n`
+  response.infoLog += "\n"
  
 //codec will be checked so it can be transcoded correctly
   if (file.video_codec_name == 'h263') {
@@ -173,7 +189,9 @@ function plugin(file, librarySettings, inputs) {
    
   response.preset += `,-map 0 -c:v hevc_nvenc -rc:v vbr_hq ${bitrateSettings} -bufsize 2M -spatial_aq:v 1 -c:a copy ${subtitleArguments} ${queueArguments} ${extraArguments}`
   response.processFile = true
+  response.infoLog += "\n"
   response.infoLog += `☒ File is not hevc. Transcoding. \n`
+  response.infoLog += "\n"
   return response
 }
    
