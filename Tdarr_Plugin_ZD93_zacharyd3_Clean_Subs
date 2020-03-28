@@ -83,11 +83,23 @@ function plugin(file, librarySettings, inputs) {
       return response
     } 
   
+  if (inputs.keep_forced == "") {
+	var inputs.keep_forced = false
+    } 
+  
+  if (inputs.debugging == "") {
+	var inputs.debugging = false
+    } 
+  
   var language = inputs.language.split(",")
   var ffmpegCommandInsert = ''
   var subtitleIdx = -1
   var convert = false
-
+  
+  if (inputs.debugging.toLowerCase() == "true"){
+  response.infoLog += `Keep forced: ${inputs.keep_forced}\n`
+  }
+  
   for (var i = 0; i < file.ffProbeData.streams.length; i++) {
 	   try {
             if (file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle") {
@@ -98,32 +110,44 @@ function plugin(file, librarySettings, inputs) {
 		if (inputs.keep_forced.toLowerCase() == "true") {
 			try {
 				
-			//Just for testing output the stream and if it's forced
-				if (inputs.debugging.toLowerCase90 == "true"){
-					response.infoLog += `Stream: 0:s:${subtitleIdx}\n`
-					response.infoLog += `Title: ${file.ffProbeData.streams[i].tags.title.toLowerCase()}\n`
-					response.infoLog += `Disposition: ${file.ffProbeData.streams[i].disposition.forced}\n`
-					response.infoLog += `\n`
+				//Setup the stream check and variables
+				if (file.ffProbeData.streams[i].disposition.forced == '1'){
+					var isForced = true
+				}
+				if (file.ffProbeData.streams[i].disposition.forced != '1'){
+					var isForced = false
+				}
+					
+				//Just for testing output the stream and if it's forced
+				if (inputs.debugging.toLowerCase() == "true"){
+					if (subtitleIdx >= "0"){
+						response.infoLog += `Stream: 0:s:${subtitleIdx} Forced: ${isForced}\n`
+					}
 				}
 
 				//Remove subtitles, but only if they aren't forced.
-				if (file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle" && (file.ffProbeData.streams[i].tags.title.toLowerCase() != "forced" || file.ffProbeData.streams[i].disposition.forced != '1')) {
+				if (file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle" && isForced != true){
 					ffmpegCommandInsert += `-map -s:${subtitleIdx} `
-					response.infoLog += `\n`
-					response.infoLog += `☑ Subtitle stream detected as not being forced, removing. Subtitle stream 0:s:${subtitleIdx} - ${file.ffProbeData.streams[i].tags.language.toLowerCase()}:${file.ffProbeData.streams[i].tags.title.toLowerCase()} \n`
+					response.infoLog += `☑ Subtitle stream detected as not being forced, removing. Subtitle stream 0:s:${subtitleIdx} - ${file.ffProbeData.streams[i].tags.language.toLowerCase()} \n`
 					response.infoLog += `\n`
 					convert = true
 				}
 			} catch (err) { }
 		}
 		
-		try {
-			if (file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle" && language.indexOf(file.ffProbeData.streams[i].tags.language.toLowerCase()) === -1) {
-				ffmpegCommandInsert += `-map -0:s:${subtitleIdx} `
-				response.infoLog += `☒ Subtitle stream detected as being an unwanted language, removing. Subtitle stream 0:s:${subtitleIdx} - ${file.ffProbeData.streams[i].tags.language.toLowerCase()} \n`
-				convert = true
+		//If keep_forced is set to false (or really anything but true) this should run and make sure the language selected it kept.
+		if (inputs.keep_forced.toLowerCase() != "true") {
+			if (inputs.debugging.toLowerCase() == "true"){
+				response.infoLog += `If you're seeing this, it means you have disabled keep_forced.\n`
 			}
-		} catch (err) { }
+			try {
+				if (file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle" && language.indexOf(file.ffProbeData.streams[i].tags.language.toLowerCase()) === -1){
+					ffmpegCommandInsert += `-map -0:s:${subtitleIdx} `
+					response.infoLog += `☒ Subtitle stream 0:s:${subtitleIdx} - ${file.ffProbeData.streams[i].tags.language.toLowerCase()} detected as being an unwanted language, removing.\n`
+					convert = true
+				}
+			} catch (err) { }
+		}
 		
        try {
             if (inputs.commentary.toLowerCase() == "true" && file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle" && (file.ffProbeData.streams[i].tags.title.toLowerCase().includes('commentary') || file.ffProbeData.streams[i].tags.title.toLowerCase().includes('description') || file.ffProbeData.streams[i].tags.title.toLowerCase().includes('sdh'))) {
