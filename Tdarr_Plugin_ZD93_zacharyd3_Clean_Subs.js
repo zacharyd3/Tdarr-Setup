@@ -3,7 +3,7 @@ function details() {
     id: "Tdarr_Plugin_ZD93_zacharyd3_Clean_Subs",
 	Stage: "Pre-processing",
     Name: "zacharyd3 & Migz - Organize subtitle streams",
-    Type: "subtitles",
+    Type: "subtitless",
 	Operation: "Clean",
     Description: `This plugin keeps only specified language subtitle tracks & can tag those that have an unknown language. Also updated to include options to only keep forced subtitles in preffered language. \n\n`,
     Version: "2.25",
@@ -84,11 +84,11 @@ function plugin(file, librarySettings, inputs) {
     } 
   
   if (inputs.keep_forced == "") {
-	var inputs.keep_forced = false
+	var keep_forced = false
     } 
   
   if (inputs.debugging == "") {
-	var inputs.debugging = false
+	var debugging = false
     } 
   
   var language = inputs.language.split(",")
