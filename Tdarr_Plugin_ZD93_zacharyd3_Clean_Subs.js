@@ -38,7 +38,7 @@ function details() {
 	   por`
      },
      {
-       name: 'keep_forced',
+       name: 'only_keep_forced',
        tooltip: `Specify whether or not to ONLY keep forced subtitles
 	   	   \\nExample:\\n
 	   true
@@ -83,8 +83,8 @@ function plugin(file, librarySettings, inputs) {
       return response
     } 
   
-  if (inputs.keep_forced == "") {
-	var keep_forced = false
+  if (inputs.only_keep_forced == "") {
+	var only_keep_forced = false
     } 
   
   if (inputs.debugging == "") {
@@ -97,7 +97,7 @@ function plugin(file, librarySettings, inputs) {
   var convert = false
   
   if (inputs.debugging.toLowerCase() == "true"){
-  response.infoLog += `Keep forced: ${inputs.keep_forced}\n`
+  response.infoLog += `Keep forced: ${inputs.only_keep_forced}\n`
   }
   
   for (var i = 0; i < file.ffProbeData.streams.length; i++) {
@@ -107,7 +107,7 @@ function plugin(file, librarySettings, inputs) {
             }
 	    } catch (err) { }
 
-		if (inputs.keep_forced.toLowerCase() == "true") {
+		if (inputs.only_keep_forced.toLowerCase() == "true") {
 			try {
 				
 				//Setup the stream check and variables
@@ -135,10 +135,10 @@ function plugin(file, librarySettings, inputs) {
 			} catch (err) { }
 		}
 		
-		//If keep_forced is set to false (or really anything but true) this should run and make sure the language selected it kept.
-		if (inputs.keep_forced.toLowerCase() != "true") {
+		//If only_keep_forced is set to false (or really anything but true) this should run and make sure the language selected it kept.
+		if (inputs.only_keep_forced.toLowerCase() != "true") {
 			if (inputs.debugging.toLowerCase() == "true"){
-				response.infoLog += `If you're seeing this, it means you have disabled keep_forced.\n`
+				response.infoLog += `If you're seeing this, it means you have disabled only_keep_forced.\n`
 			}
 			try {
 				if (file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle" && language.indexOf(file.ffProbeData.streams[i].tags.language.toLowerCase()) === -1){
