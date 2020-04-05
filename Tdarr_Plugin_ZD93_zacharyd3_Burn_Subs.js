@@ -53,8 +53,7 @@ function plugin(file, librarySettings, inputs) {
 			//-i input.mkv -filter_complex "[0:v][0:s]overlay[v]" -map "[v]" -map 0:a <output options> output.mkv
 					
 			if (file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle" && isForced == true){
-				//ffmpegCommandInsert += `-filter_complex "[0:v][0:s:${subtitleIdx}]overlay[v]" -map "[v] -map 0:a" `
-				ffmpegCommandInsert += `-vf subtitles="${file.file}: si=${subtitleIdx}" -crf 16 -c:a copy`
+				ffmpegCommandInsert += `-max_muxing_queue_size 9999 -vf subtitles="${file.file}: si=${subtitleIdx}" -crf 16 -c:a copy`
 				response.infoLog += `☑ Subtitle stream detected as forced, burning them in. Subtitle stream 0:s:${subtitleIdx} - ${file.ffProbeData.streams[i].tags.language.toLowerCase()} \n`
 				response.infoLog += `\n`		
 				convert = true						
