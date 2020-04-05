@@ -3,11 +3,11 @@ function details() {
     id: "Tdarr_Plugin_ZD93_zacharyd3_Clean_Subs",
 	Stage: "Pre-processing",
     Name: "zacharyd3 & Migz - Organize subtitle streams",
-    Type: "subtitless",
+    Type: "Subtitles",
 	Operation: "Clean",
     Description: `This plugin keeps only specified language subtitle tracks & can tag those that have an unknown language. Also updated to include options to only keep forced subtitles in preffered language. \n\n`,
     Version: "2.25",
-    Link: "https://github.com/HaveAGitGat/Tdarr_Plugins/blob/master/Community/Tdarr_Plugin_MC93_Migz4CleanSubs.js",
+    Link: "https://github.com/zacharyd3/Tdarr-Setup/blob/master/Tdarr_Plugin_ZD93_zacharyd3_Clean_Subs.js",
     Tags:'pre-processing,ffmpeg,subtitle only,configurable',
     Inputs: [
      {
@@ -124,7 +124,7 @@ function plugin(file, librarySettings, inputs) {
 						response.infoLog += `Stream: 0:s:${subtitleIdx} Forced: ${isForced}\n`
 					}
 				}
-
+			
 				//Remove subtitles, but only if they aren't forced.
 				if (file.ffProbeData.streams[i].codec_type.toLowerCase() == "subtitle" && isForced != true){
 					ffmpegCommandInsert += `-map -s:${subtitleIdx} `
